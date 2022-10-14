@@ -14,3 +14,4 @@ prediction_result = craft.detect_text(image)
 # unload models from ram/gpu
 craft.unload_craftnet_model()
 craft.unload_refinenet_model()
+
