@@ -1,5 +1,13 @@
 import matplotlib.pyplot as plt
 import keras_ocr
+import cv2
+
+
+class _box:
+    def __init__(self, startX, startY, endX, endY):
+        self.start_point = (startX, startY)
+        self.end_point = (endX, endY)
+
 
 # import craft functions
 from craft_text_detector import (
@@ -13,11 +21,11 @@ from craft_text_detector import (
 )
 
 # set image path and export folder directory
-image_path = "test1.jpeg"  
+image_path = "test1.jpeg"
 output_dir = "outputs/"
 
 # read image into cv2
-image = read_image(image_path)  
+image = read_image(image_path)
 
 # load models
 refine_net = load_refinenet_model(
@@ -37,19 +45,28 @@ prediction_result = get_prediction(
     long_size=1280,
 )
 
-poly = prediction_result["boxes"]
-# Last box
-# A B 159 1424
-# C B 934 1412
-# C D 934 1449
-# A D 160 1461
-print(poly)
+boxes = [
+    _box(
+        int(box_coords[0][0]),
+        int(box_coords[0][1]),
+        int(box_coords[1][0]),
+        int(box_coords[2][1]),
+    )
+    for box_coords in prediction_result["boxes"]
+]
+
+for box in boxes:
+    image = cv2.rectangle(image, box.start_point, box.end_point, (255, 0, 0), 2)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 # # export detected text regions
 # exported_file_paths = export_detected_regions(
 #     image=image, regions=prediction_result["boxes"], output_dir=output_dir, rectify=True
 # )
-# 
+#
 # # export heatmap, detection points, box visualization
 # export_extra_results(
 #     image=image,
