@@ -22,6 +22,18 @@ class _coords:
         print(f"{self.center}")
 
 
+def draw_boxes(image):
+    image = 0
+    image = cv2.imread("test1.jpeg")
+    for poly in polys:
+        image = cv2.line(image, poly.top_left, poly.top_right, (255, 0, 0), 2)
+        image = cv2.line(image, poly.top_right, poly.bottom_right, (255, 0, 0), 2)
+        image = cv2.line(image, poly.bottom_right, poly.bottom_left, (255, 0, 0), 2)
+        image = cv2.line(image, poly.bottom_left, poly.top_left, (255, 0, 0), 2)
+    return image
+
+
+# finding geometries
 # import craft functions
 from craft_text_detector import (
     read_image,
@@ -60,78 +72,10 @@ prediction_result = get_prediction(
 
 polys = [_coords(coords) for coords in prediction_result["boxes"]]
 
-group_num = 0
-
-
-def draw_boxes():
-    image = 0
-    image = cv2.imread("test1.jpeg")
-    for poly in polys:
-        image = cv2.line(image, poly.top_left, poly.top_right, (255, 0, 0), 2)
-        image = cv2.line(image, poly.top_right, poly.bottom_right, (255, 0, 0), 2)
-        image = cv2.line(image, poly.bottom_right, poly.bottom_left, (255, 0, 0), 2)
-        image = cv2.line(image, poly.bottom_left, poly.top_left, (255, 0, 0), 2)
-
-    return image
-
-
-def get_coord_dist(node1, node2):
-    return math.sqrt((node1[0] - node2[0]) ** 2 + (node1[1] - node2[1]) ** 2)
-
-
-def get_min_dist(image, node, poly):
-    dists = [
-        [get_coord_dist(node, poly.top_right), poly.top_right],
-        [get_coord_dist(node, poly.top_left), poly.top_left],
-        [get_coord_dist(node, poly.bottom_right), poly.bottom_right],
-        [get_coord_dist(node, poly.bottom_left), poly.bottom_left],
-    ]
-    coords = [coords[1] for coords in dists]
-    mins = [coords[0] for coords in dists]
-    min_dist = min([coords[0] for coords in dists])
-    index = mins.index(min_dist)
-    print(f"min dist is {min_dist}, from {node} to {coords[index]}")
-    image = cv2.line(image, node, coords[index], (0, 0, 255), 2)
-    return image
-
-
-image = draw_boxes()
-
-first_poly = polys[0]
-
-for poly in polys:
-    get_min_dist(image, first_poly.top_right, poly)
-
-"""
-    image = cv2.putText(
-        image,
-        f"{group_num}",
-        poly.center,
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 255, 0),
-        2,
-        cv2.LINE_AA,
-    )
-"""
+image = draw_boxes(image)
 
 cv2.imshow("image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-
-# # export detected text regions
-# exported_file_paths = export_detected_regions(
-#     image=image, regions=prediction_result["boxes"], output_dir=output_dir, rectify=True
-# )
-#
-# # export heatmap, detection points, box visualization
-# export_extra_results(
-#     image=image,
-#     regions=prediction_result["boxes"],
-#     heatmaps=prediction_result["heatmaps"],
-#     output_dir=output_dir,
-# )
-
-# unload models from gpu
 empty_cuda_cache()
