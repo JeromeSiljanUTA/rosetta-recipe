@@ -56,11 +56,14 @@ boxes = [
 ]
 
 for box in boxes:
-    image = cv2.rectangle(image, box.start_point, box.end_point, (255, 0, 0), 2)
+    # image = cv2.rectangle(image, box.start_point, box.end_point, (255, 0, 0), 2)
+    tmp = image[
+        box.start_point[1] : box.end_point[1], box.start_point[0] : box.end_point[0]
+    ]
+    cv2.imshow("crop", tmp)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-cv2.imshow("image", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 
 # # export detected text regions
 # exported_file_paths = export_detected_regions(
