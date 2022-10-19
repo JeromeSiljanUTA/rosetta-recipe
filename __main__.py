@@ -3,10 +3,12 @@ import keras_ocr
 import cv2
 
 
-class _box:
-    def __init__(self, startX, startY, endX, endY):
-        self.start_point = (startX, startY)
-        self.end_point = (endX, endY)
+class _coords:
+    def __init__(self, coords):
+        self.top_left = (int(coords[0][0]), int(coords[0][1]))
+        self.top_right = (int(coords[1][0]), int(coords[1][1]))
+        self.bottom_right = (int(coords[2][0]), int(coords[2][1]))
+        self.bottom_left = (int(coords[3][0]), int(coords[3][1]))
 
 
 # import craft functions
@@ -45,24 +47,17 @@ prediction_result = get_prediction(
     long_size=1280,
 )
 
-boxes = [
-    _box(
-        int(box_coords[0][0]),
-        int(box_coords[0][1]),
-        int(box_coords[1][0]),
-        int(box_coords[2][1]),
-    )
-    for box_coords in prediction_result["boxes"]
-]
+polys = [_coords(coords) for coords in prediction_result["boxes"]]
 
-for box in boxes:
-    # image = cv2.rectangle(image, box.start_point, box.end_point, (255, 0, 0), 2)
-    tmp = image[
-        box.start_point[1] : box.end_point[1], box.start_point[0] : box.end_point[0]
-    ]
-    cv2.imshow("crop", tmp)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+for poly in polys:
+    image = cv2.line(image, poly.top_left, poly.top_right, (255, 0, 0), 2)
+    image = cv2.line(image, poly.top_right, poly.bottom_right, (255, 0, 0), 2)
+    image = cv2.line(image, poly.bottom_right, poly.bottom_left, (255, 0, 0), 2)
+    image = cv2.line(image, poly.bottom_left, poly.top_left, (255, 0, 0), 2)
+
+cv2.imshow("image", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
 # # export detected text regions
