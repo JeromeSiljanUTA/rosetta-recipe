@@ -1,3 +1,4 @@
+# imports
 import matplotlib.pyplot as plt
 import keras_ocr
 import cv2
@@ -103,31 +104,6 @@ color_clusters([poly.top_right for poly in polys], "top_right")
 color_clusters([poly.bottom_left for poly in polys], "bottom_left")
 color_clusters([poly.bottom_right for poly in polys], "bottom_right")
 color_clusters([poly.center for poly in polys], "center")
-
-"""
-node = polys[0].top_right
-stop = 0
-for main_poly in polys:
-    dists = []
-    nodes = []
-    for main_poly_node in main_poly.coords:
-        for poly in polys:
-            for poly_node in poly.coords:
-                if main_poly_node != poly_node:
-                    dist = math.dist(poly_node, main_poly_node)
-                    print(dist)
-                    dists.append(dist)
-                    nodes.append(poly_node)
-                    if dist == 0:
-                        stop = 1
-        min_dist = min(dists)
-        index = dists.index(min_dist)
-        node = nodes[index] 
-        print(f'min dist is {min_dist} between {node} and {main_poly_node}')
-        image = cv2.line(image, node, main_poly_node, (255, 0, 0), 2)
-        break
-print(f"stop {stop}")
-"""
 
 cv2.imshow("image", image)
 cv2.waitKey(0)
