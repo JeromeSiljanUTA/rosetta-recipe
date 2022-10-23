@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import keras_ocr
 import cv2
 import math
-from sklearn.cluster import MeanShift
+from sklearn.cluster import DBSCAN
+import pickle
 
 
 class _coords:
@@ -78,8 +79,6 @@ prediction_result = get_prediction(
     long_size=1280,
 )
 
-polys = [_coords(coords) for coords in prediction_result["boxes"]]
-
 
 def color_clusters(arr, name):
     plt.cla()
@@ -95,15 +94,20 @@ def color_clusters(arr, name):
         except:
             print(f"{point}, {cluster_num}")
 
-    plt.savefig(f"{output_dir}{name}.png")
+    # plt.savefig(f"{output_dir}{name}.png")
     # plt.show()
 
 
-color_clusters([poly.top_left for poly in polys], "top_left")
-color_clusters([poly.top_right for poly in polys], "top_right")
-color_clusters([poly.bottom_left for poly in polys], "bottom_left")
-color_clusters([poly.bottom_right for poly in polys], "bottom_right")
-color_clusters([poly.center for poly in polys], "center")
+# color_clusters([poly.top_left for poly in polys], "top_left")
+# color_clusters([poly.top_right for poly in polys], "top_right")
+# color_clusters([poly.bottom_left for poly in polys], "bottom_left")
+# color_clusters([poly.bottom_right for poly in polys], "bottom_right")
+# color_clusters([poly.center for poly in polys], "center")
+
+polys = [_coords(coords) for coords in prediction_result["boxes"]]
+
+with open("polys.pickle", "wb") as fh:
+    pickle.dump(polys, fh)
 
 cv2.imshow("image", image)
 cv2.waitKey(0)
