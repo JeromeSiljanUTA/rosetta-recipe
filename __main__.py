@@ -41,6 +41,29 @@ def draw_boxes(image):
         image = cv2.line(image, poly.bottom_left, poly.top_left, (255, 0, 0), 2)
     return image
 
+def find_closest(poly):
+    points = [[], []]
+    closest = 0
+    is_first = True
+    for point in [poly.top_right, poly.top_left, poly.bottom_right, poly.bottom_left]:
+        for comp_poly in polys:
+            if comp_poly != poly:
+                coords = [comp_poly.top_right, comp_poly.top_left, comp_poly.bottom_right, comp_poly.bottom_left]
+                dists = [
+                    math.dist(point, comp_poly.top_right),
+                    math.dist(point, comp_poly.top_left),
+                    math.dist(point, comp_poly.bottom_right),
+                    math.dist(point, comp_poly.bottom_left),
+                ]
+                min_dist = min(dists)
+                if min_dist < closest or is_first:
+                    is_first = False
+                    closest = min_dist
+                    points[0] = point
+                    points[1] = coords[dists.index(min_dist)]
+            else:
+                print(f"match found")
+    return points
 
 # finding geometries
 # import craft functions
@@ -79,35 +102,14 @@ prediction_result = get_prediction(
     long_size=1280,
 )
 
-
-def color_clusters(arr, name):
-    plt.cla()
-    ms = MeanShift()
-    ms.fit(arr)
-    labels = ms.labels_
-    img = plt.imread("test1.jpeg")
-    plt.imshow(img)
-    colors = ["red", "blue", "green", "yellow"]
-    for cluster_num, point in zip(labels, arr):
-        try:
-            plt.scatter(*(point), c=colors[cluster_num])
-        except:
-            print(f"{point}, {cluster_num}")
-
-    # plt.savefig(f"{output_dir}{name}.png")
-    # plt.show()
-
-
-# color_clusters([poly.top_left for poly in polys], "top_left")
-# color_clusters([poly.top_right for poly in polys], "top_right")
-# color_clusters([poly.bottom_left for poly in polys], "bottom_left")
-# color_clusters([poly.bottom_right for poly in polys], "bottom_right")
-# color_clusters([poly.center for poly in polys], "center")
-
 polys = [_coords(coords) for coords in prediction_result["boxes"]]
 
-with open("polys.pickle", "wb") as fh:
-    pickle.dump(polys, fh)
+#with open("polys.pickle", "wb") as fh:
+    #pickle.dump(polys, fh)
+
+for poly in polys:
+    closest = find_closest(poly)
+    cv2.line(image, closest[0], closest[1], (0, 255, 0), 5)
 
 cv2.imshow("image", image)
 cv2.waitKey(0)
